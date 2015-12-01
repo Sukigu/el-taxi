@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
-import agents.Agent;
+import elements.Agent;
+import elements.Taxi;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimModelImpl;
@@ -21,6 +22,7 @@ public class Model extends SimModelImpl {
 		numberOfTaxis = 5;
 	}
 	
+	@Override
 	public String getName() {
 		return "Taxi Simulation";
 	}
@@ -32,14 +34,17 @@ public class Model extends SimModelImpl {
 	
 	@Override
 	public void setup() {
+		schedule = new Schedule(1);
 		dsurf = new DisplaySurface(this, getName());
 		registerDisplaySurface(getName(), dsurf);
 	}
 	
+	@Override
 	public Schedule getSchedule() {
 		return schedule;
 	}
 	
+	@Override
 	public void begin() {
 		buildModel();
 		buildDisplay();
@@ -48,12 +53,12 @@ public class Model extends SimModelImpl {
 	
 	public void buildModel() {
 		agentList = new ArrayList<Agent>();
-		space = new Object2DGrid(500, 500);
+		space = new Object2DGrid(100, 100);
 
-		Agent osGar = new Agent("Osmani García");
+		Taxi osGar = new Taxi("Osmani García");
 
+		space.putObjectAt(0, 0, osGar);
 		agentList.add(osGar);
-		space.putObjectAt(200, 200, osGar);
 	}
 	
 	private void buildDisplay() {
@@ -68,13 +73,13 @@ public class Model extends SimModelImpl {
 	private void buildSchedule() {
 		class MyAction extends BasicAction {
 			public void execute() {
-				System.out.println("olá");
+				dsurf.updateDisplay();
 			}
 		}
 		
 		MyAction action = new MyAction();
 		
-		schedule.scheduleActionAtEnd(action);
+		schedule.scheduleActionAtInterval(.5, action);
 	}
 	
 	public int getNumberOfTaxis() {

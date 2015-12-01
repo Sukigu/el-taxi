@@ -1,9 +1,7 @@
-package agents;
+package elements;
 
-import models.MapElement;
-
-public class Agent extends MapElement {
-	protected String name;
+public abstract class Agent extends MapElement {
+	private String name;
 	
 	public Agent(String name) {
 		super(0, 0);

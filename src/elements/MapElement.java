@@ -1,10 +1,12 @@
-package models;
+package elements;
+
+import java.awt.Color;
 
 import uchicago.src.sim.engine.Stepable;
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
 
-public class MapElement implements Drawable, Stepable {
+public abstract class MapElement implements Drawable, Stepable {
 	protected int x, y;
 	
 	public MapElement(int x, int y) {
@@ -18,6 +20,7 @@ public class MapElement implements Drawable, Stepable {
 
 	@Override
 	public void draw(SimGraphics g) {
+		g.drawString("Taxi", new Color(1, 1, 1));
 	}
 
 	@Override
