@@ -1,36 +1,56 @@
 import java.util.ArrayList;
 
 import agents.Agent;
-import uchicago.src.sim.engine.SimpleModel;
+import uchicago.src.sim.engine.BasicAction;
+import uchicago.src.sim.engine.Schedule;
+import uchicago.src.sim.engine.SimModelImpl;
 import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.space.Object2DGrid;
 
-public class Model extends SimpleModel {
-	ArrayList<Agent> agentList;
-	DisplaySurface dsurf;
-	Object2DGrid space;
+public class Model extends SimModelImpl {
+	private ArrayList<Agent> agentList;
+	private DisplaySurface dsurf;
+	private Object2DGrid space;
+	private Schedule schedule;
+	
+	private int numberOfTaxis;
 	
 	public Model() {
-		name = "El Taxi";
+		super();
+		numberOfTaxis = 5;
+	}
+	
+	public String getName() {
+		return "Taxi Simulation";
+	}
+	
+	@Override
+	public String[] getInitParam() {
+		return new String[] {"numberOfTaxis"};
 	}
 	
 	@Override
 	public void setup() {
-		super.setup();
-		autoStep = true;
-		shuffle = true;
-		
-		dsurf = new DisplaySurface(this, name);
-		registerDisplaySurface(name, dsurf);
+		dsurf = new DisplaySurface(this, getName());
+		registerDisplaySurface(getName(), dsurf);
 	}
 	
-	@Override
+	public Schedule getSchedule() {
+		return schedule;
+	}
+	
+	public void begin() {
+		buildModel();
+		buildDisplay();
+		buildSchedule();
+	}
+	
 	public void buildModel() {
 		agentList = new ArrayList<Agent>();
 		space = new Object2DGrid(500, 500);
 
-		Agent osGar = new Agent("Osmani Garc�a");
+		Agent osGar = new Agent("Osmani García");
 
 		agentList.add(osGar);
 		space.putObjectAt(200, 200, osGar);
@@ -45,11 +65,23 @@ public class Model extends SimpleModel {
 		dsurf.display();
 	}
 	
-	@Override
-	protected void preStep() {
+	private void buildSchedule() {
+		class MyAction extends BasicAction {
+			public void execute() {
+				System.out.println("olá");
+			}
+		}
+		
+		MyAction action = new MyAction();
+		
+		schedule.scheduleActionAtEnd(action);
 	}
 	
-	@Override
-	protected void postStep() {
+	public int getNumberOfTaxis() {
+		return numberOfTaxis;
+	}
+	
+	public void setNumberOfTaxis(int numberOfTaxis) {
+		this.numberOfTaxis = numberOfTaxis;
 	}
 }
