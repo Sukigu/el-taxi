@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-import elements.Agent;
+import elements.MapAgent;
 import elements.Taxi;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
@@ -10,7 +10,7 @@ import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.space.Object2DGrid;
 
 public class Model extends SimModelImpl {
-	private ArrayList<Agent> agentList;
+	private ArrayList<MapAgent> agentList;
 	private DisplaySurface dsurf;
 	private Object2DGrid space;
 	private Schedule schedule;
@@ -52,12 +52,12 @@ public class Model extends SimModelImpl {
 	}
 	
 	public void buildModel() {
-		agentList = new ArrayList<Agent>();
+		agentList = new ArrayList<MapAgent>();
 		space = new Object2DGrid(100, 100);
 
-		Taxi osGar = new Taxi("Osmani García");
+		Taxi osGar = new Taxi(20 ,20);
 
-		space.putObjectAt(0, 0, osGar);
+		space.putObjectAt(osGar.getX(), osGar.getY(), osGar);
 		agentList.add(osGar);
 	}
 	
@@ -68,10 +68,15 @@ public class Model extends SimModelImpl {
 		dsurf.addDisplayableProbeable(agentDisplay, "Agents");
 		addSimEventListener(dsurf);
 		dsurf.display();
+		schedule.scheduleActionBeginning(1, this, "step");
+	}
+
+	public void step() {
+		dsurf.updateDisplay();
 	}
 	
 	private void buildSchedule() {
-		class MyAction extends BasicAction {
+		/*class MyAction extends BasicAction {
 			public void execute() {
 				dsurf.updateDisplay();
 			}
@@ -79,7 +84,7 @@ public class Model extends SimModelImpl {
 		
 		MyAction action = new MyAction();
 		
-		schedule.scheduleActionAtInterval(.5, action);
+		schedule.scheduleActionAtInterval(.5, action);*/
 	}
 	
 	public int getNumberOfTaxis() {
