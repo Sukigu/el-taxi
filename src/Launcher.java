@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 import elements.MapAgent;
+import elements.StreetElement;
 import elements.Taxi;
 import sajas.sim.repast3.Repast3Launcher;
 import uchicago.src.sim.gui.DisplaySurface;
@@ -14,6 +15,7 @@ public class Launcher extends Repast3Launcher {
 	private ArrayList<MapAgent> agentList;
 	private DisplaySurface dsurf;
 	private Object2DGrid space;
+	private StreetElement map;
 
 	private int numberOfTaxis;
 
@@ -55,6 +57,8 @@ public class Launcher extends Repast3Launcher {
 		drawList = new ArrayList<Drawable>();
 		agentList = new ArrayList<MapAgent>();
 		space = new Object2DGrid(100, 100);
+		map = new StreetElement("map.txt");
+		
 
 		for (int i = 0; i < numberOfTaxis; ++i) {
 			int x, y;
@@ -67,6 +71,7 @@ public class Launcher extends Repast3Launcher {
 			Taxi taxi = new Taxi(x ,y);
 			
 			drawList.add(taxi);
+			drawList.add(map);
 			agentList.add(taxi);
 		}
 
