@@ -3,8 +3,8 @@ package elements;
 import sajas.core.Agent;
 import uchicago.src.sim.gui.Drawable;
 
-public abstract class MapAgent extends Agent implements Drawable{
-	private int x, y;
+public abstract class MapAgent extends Agent implements Drawable {
+	protected int x, y;
 	
 	public MapAgent(int x, int y) {
 		this.x = x;

@@ -2,95 +2,103 @@ import java.util.ArrayList;
 
 import elements.MapAgent;
 import elements.Taxi;
-import uchicago.src.sim.engine.BasicAction;
-import uchicago.src.sim.engine.Schedule;
-import uchicago.src.sim.engine.SimModelImpl;
+import sajas.sim.repast3.Repast3Launcher;
 import uchicago.src.sim.gui.DisplaySurface;
+import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.space.Object2DGrid;
+import uchicago.src.sim.util.Random;
 
-public class Model extends SimModelImpl {
+public class Launcher extends Repast3Launcher {
+	private ArrayList<Drawable> drawList;
 	private ArrayList<MapAgent> agentList;
 	private DisplaySurface dsurf;
 	private Object2DGrid space;
-	private Schedule schedule;
-	
+
 	private int numberOfTaxis;
-	
-	public Model() {
+
+	public Launcher() {
 		super();
 		numberOfTaxis = 5;
 	}
-	
+
 	@Override
 	public String getName() {
 		return "Taxi Simulation";
 	}
-	
+
 	@Override
 	public String[] getInitParam() {
 		return new String[] {"numberOfTaxis"};
 	}
-	
+
 	@Override
 	public void setup() {
-		schedule = new Schedule(1);
+		super.setup();
 		dsurf = new DisplaySurface(this, getName());
 		registerDisplaySurface(getName(), dsurf);
 	}
-	
-	@Override
-	public Schedule getSchedule() {
-		return schedule;
-	}
-	
+
 	@Override
 	public void begin() {
+		super.begin();
 		buildModel();
 		buildDisplay();
 		buildSchedule();
 	}
-	
+
+	@Override
+	protected void launchJADE() {
+	}
+
 	public void buildModel() {
+		drawList = new ArrayList<Drawable>();
 		agentList = new ArrayList<MapAgent>();
 		space = new Object2DGrid(100, 100);
 
-		Taxi osGar = new Taxi(20 ,20);
+		for (int i = 0; i < numberOfTaxis; ++i) {
+			int x, y;
+			
+			do {
+				x = Random.uniform.nextIntFromTo(0, space.getSizeX() - 1);
+				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
+			} while (space.getObjectAt(x, y) != null);
+			
+			Taxi taxi = new Taxi(x ,y);
+			
+			drawList.add(taxi);
+			agentList.add(taxi);
+		}
 
-		space.putObjectAt(osGar.getX(), osGar.getY(), osGar);
-		agentList.add(osGar);
+		for (Drawable o : drawList) {
+			space.putObjectAt(o.getX(), o.getY(), o);
+		}
 	}
-	
+
 	private void buildDisplay() {
 		Object2DDisplay agentDisplay = new Object2DDisplay(space);
-		agentDisplay.setObjectList(agentList);
-		
+		agentDisplay.setObjectList(drawList);
+
 		dsurf.addDisplayableProbeable(agentDisplay, "Agents");
 		addSimEventListener(dsurf);
 		dsurf.display();
-		schedule.scheduleActionBeginning(1, this, "step");
+		getSchedule().scheduleActionBeginning(1, this, "step");
 	}
 
 	public void step() {
 		dsurf.updateDisplay();
 	}
-	
+
 	private void buildSchedule() {
-		/*class MyAction extends BasicAction {
-			public void execute() {
-				dsurf.updateDisplay();
-			}
+		for (MapAgent agent : agentList) {
+			scheduleAgent(agent);
 		}
-		
-		MyAction action = new MyAction();
-		
-		schedule.scheduleActionAtInterval(.5, action);*/
 	}
-	
+
 	public int getNumberOfTaxis() {
 		return numberOfTaxis;
 	}
-	
+
 	public void setNumberOfTaxis(int numberOfTaxis) {
 		this.numberOfTaxis = numberOfTaxis;
 	}

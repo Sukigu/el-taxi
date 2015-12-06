@@ -11,7 +11,7 @@ public class Main {
 
 		// create a model
 		//MyHelloWorldModel model = new MyHelloWorldModel();
-		Model myModel = new Model();
+		Launcher myModel = new Launcher();
 
 		// load model into simulation:
 		init.loadModel(myModel, null, runMode);
