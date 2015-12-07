@@ -56,8 +56,8 @@ public class Launcher extends Repast3Launcher {
 	public void buildModel() {
 		drawList = new ArrayList<Drawable>();
 		agentList = new ArrayList<MapAgent>();
-		space = new Object2DGrid(100, 100);
 		map = new StreetElement("map.txt");
+		space = new Object2DGrid(map.getStreetLines(), map.getStreetCols());
 		
 
 		for (int i = 0; i < numberOfTaxis; ++i) {
