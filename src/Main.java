@@ -10,7 +10,6 @@ public class Main {
 		SimInit init = new SimInit();
 
 		// create a model
-		//MyHelloWorldModel model = new MyHelloWorldModel();
 		Launcher myModel = new Launcher();
 
 		// load model into simulation:

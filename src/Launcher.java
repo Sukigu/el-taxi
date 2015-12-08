@@ -7,14 +7,21 @@ import javax.imageio.ImageIO;
 
 import elements.Building;
 import elements.Gas;
-import elements.MapAgent;
 import elements.Map;
 import elements.MapElement;
 import elements.Passenger;
 import elements.Road;
 import elements.Stop;
 import elements.Taxi;
+import elements.Taxi1;
+import elements.Taxi2;
+import elements.Taxi3;
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.wrapper.StaleProxyException;
+import sajas.core.Runtime;
 import sajas.sim.repast3.Repast3Launcher;
+import sajas.wrapper.ContainerController;
 import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.Object2DDisplay;
@@ -22,8 +29,8 @@ import uchicago.src.sim.space.Object2DGrid;
 import uchicago.src.sim.util.Random;
 
 public class Launcher extends Repast3Launcher {
+	private ContainerController container;
 	private ArrayList<Drawable> drawList;
-	private ArrayList<MapAgent> agentList;
 	private ArrayList<MapElement> elementsList;
 	private DisplaySurface dsurf;
 	private Object2DGrid space;
@@ -36,14 +43,29 @@ public class Launcher extends Repast3Launcher {
 	private Image imgStop;
 	private Image imgBuilding;
 	
-	
-	private int numberOfTaxis;
-	private int numberOfPassengers;
+	private int numTaxisBehavior1, numTaxisBehavior2, numTaxisBehavior3, numPassengers;
 
 	public Launcher() {
 		super();
-		numberOfTaxis = 5;
-		numberOfPassengers = 5;
+		numTaxisBehavior1 = 2;
+		numTaxisBehavior2 = 2;
+		numTaxisBehavior3 = 2;
+		numPassengers = 5;
+		
+		drawList = new ArrayList<Drawable>();
+		elementsList = new ArrayList<MapElement>();
+		map = new Map("res/map.txt");
+		space = new Object2DGrid(map.getMapLines(), map.getMapCols());
+		try {
+			imgTaxi = ImageIO.read(new File("res/img/taxi.png"));
+			imgPassenger = ImageIO.read(new File("res/img/passenger.png"));
+			imgRoad = ImageIO.read(new File("res/img/road.jpg"));
+			imgGas = ImageIO.read(new File("res/img/gas.png"));
+			imgStop = ImageIO.read(new File("res/img/StopTaxi.jpg"));
+			imgBuilding = ImageIO.read(new File("res/img/building.png"));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	@Override
@@ -53,7 +75,7 @@ public class Launcher extends Repast3Launcher {
 
 	@Override
 	public String[] getInitParam() {
-		return new String[] {"numberOfTaxis"};
+		return new String[] {"numTaxisBehavior1", "numTaxisBehavior2", "numTaxisBehavior3", "numPassengers"};
 	}
 
 	@Override
@@ -66,34 +88,33 @@ public class Launcher extends Repast3Launcher {
 	@Override
 	public void begin() {
 		super.begin();
-		buildModel();
 		buildDisplay();
-		buildSchedule();
+	}
+
+	private void buildDisplay() {
+		Object2DDisplay agentDisplay = new Object2DDisplay(space);
+		agentDisplay.setObjectList(drawList);
+
+		dsurf.addDisplayableProbeable(agentDisplay, "Agents");
+		addSimEventListener(dsurf);
+		dsurf.display();
+		getSchedule().scheduleActionBeginning(1, this, "step");
+	}
+
+	public void step() {
+		dsurf.updateDisplay();
 	}
 
 	@Override
 	protected void launchJADE() {
+		Runtime rt = Runtime.instance();
+		Profile p1 = new ProfileImpl();
+		container = rt.createMainContainer(p1);
+		
+		placeElements();
 	}
 
-	public void buildModel() {
-		drawList = new ArrayList<Drawable>();
-		agentList = new ArrayList<MapAgent>();
-		elementsList = new ArrayList<MapElement>();
-		map = new Map("map.txt");
-		space = new Object2DGrid(map.getMapLines(), map.getMapCols());
-		try {
-			imgTaxi = ImageIO.read(new File("images/taxi.png"));
-			imgPassenger = ImageIO.read(new File("images/passenger.png"));
-			imgRoad = ImageIO.read(new File("images/road.jpg"));
-			imgGas = ImageIO.read(new File("images/gas.png"));
-			imgStop = ImageIO.read(new File("images/StopTaxi.jpg"));
-			imgBuilding = ImageIO.read(new File("images/building.png"));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		
+	public void placeElements() {
 		for (int i = 0; i < map.getMap().size(); i++) {
 			for (int j = 0; j < map.getMap().get(i).size(); j++) {
 				if (map.getMap().get(i).get(j) == 1) {
@@ -123,8 +144,9 @@ public class Launcher extends Repast3Launcher {
 			}
 		}
 		
+		int numTaxis = numTaxisBehavior1 + numTaxisBehavior2 + numTaxisBehavior3;
 
-		for (int i = 0; i < numberOfTaxis; ++i) {
+		for (int i = 0; i < numTaxis; ++i) {
 			int x, y;
 			
 			do {
@@ -132,13 +154,30 @@ public class Launcher extends Repast3Launcher {
 				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
 			} while (map.getMapTransposed().get(y).get(x) == 0);
 			
-			Taxi taxi = new Taxi(x ,y, imgTaxi);
+			Taxi taxi = null;
+			
+			if (numTaxisBehavior1 > 0) {
+				taxi = new Taxi1(x, y, imgTaxi);
+				--numTaxisBehavior1;
+			}
+			else if (numTaxisBehavior2 > 0) {
+				taxi = new Taxi2(x, y, imgTaxi);
+				--numTaxisBehavior2;
+			}
+			else if (numTaxisBehavior3 > 0) {
+				taxi = new Taxi3(x, y, imgTaxi);
+				--numTaxisBehavior3;
+			}
 			
 			drawList.add(taxi);
-			agentList.add(taxi);
+			try {
+				container.acceptNewAgent("taxi" + i, taxi).start();
+			} catch (StaleProxyException e) {
+				e.printStackTrace();
+			}
 		}
 		
-		for (int i = 0; i < numberOfPassengers; ++i) {
+		for (int i = 0; i < numPassengers; ++i) {
 			int x, y;
 			
 			do {
@@ -146,10 +185,9 @@ public class Launcher extends Repast3Launcher {
 				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
 			} while (map.getMapTransposed().get(y).get(x) == 0);
 			
-			Passenger passenger = new Passenger(x ,y, imgPassenger);
+			Passenger passenger = new Passenger(x, y, imgPassenger);
 			
 			drawList.add(passenger);
-			agentList.add(passenger);
 		}
 
 		for (Drawable o : drawList) {
@@ -157,40 +195,37 @@ public class Launcher extends Repast3Launcher {
 		}
 	}
 
-	private void buildDisplay() {
-		Object2DDisplay agentDisplay = new Object2DDisplay(space);
-		agentDisplay.setObjectList(drawList);
-
-		dsurf.addDisplayableProbeable(agentDisplay, "Agents");
-		addSimEventListener(dsurf);
-		dsurf.display();
-		getSchedule().scheduleActionBeginning(1, this, "step");
+	/* Gets and sets for parameters */
+	public int getNumTaxisBehavior1() {
+		return numTaxisBehavior1;
 	}
 
-	public void step() {
-		dsurf.updateDisplay();
+	public void setNumTaxisBehavior1(int numTaxisBehavior1) {
+		this.numTaxisBehavior1 = numTaxisBehavior1;
 	}
 
-	private void buildSchedule() {
-		for (MapAgent agent : agentList) {
-			scheduleAgent(agent);
-		}
+	public int getNumTaxisBehavior2() {
+		return numTaxisBehavior1;
 	}
 
-	public int getNumberOfTaxis() {
-		return numberOfTaxis;
+	public void setNumTaxisBehavior2(int numTaxisBehavior2) {
+		this.numTaxisBehavior2 = numTaxisBehavior2;
 	}
 
-	public void setNumberOfTaxis(int numberOfTaxis) {
-		this.numberOfTaxis = numberOfTaxis;
+	public int getNumTaxisBehavior3() {
+		return numTaxisBehavior3;
 	}
 
-	public int getNumberOfPassengers() {
-		return numberOfPassengers;
+	public void setNumTaxisBehavior3(int numTaxisBehavior3) {
+		this.numTaxisBehavior3 = numTaxisBehavior3;
 	}
 
-	public void setNumberOfPassengers(int numberOfPassengers) {
-		this.numberOfPassengers = numberOfPassengers;
+	public int getNumPassengers() {
+		return numPassengers;
+	}
+
+	public void setNumPassengers(int numPassengers) {
+		this.numPassengers = numPassengers;
 	}
 	
 }

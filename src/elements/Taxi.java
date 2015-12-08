@@ -1,32 +1,55 @@
 package elements;
+
 import java.awt.Image;
 
-import sajas.core.behaviours.SimpleBehaviour;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.lang.acl.ACLMessage;
+import sajas.core.behaviours.CyclicBehaviour;
+import sajas.domain.DFService;
 import uchicago.src.sim.gui.SimGraphics;
 
 public class Taxi extends MapAgent {
 	private Image img;
-	private class TaxiBehavior extends SimpleBehaviour {
-		@Override
+	
+	private class TaxiBehavior extends CyclicBehaviour {
 		public void action() {
-		//	System.out.println("¡Le voy a hacer la historia a Pitbull y a Sensato pa' que la conozcan!");
-		}
-
-		@Override
-		public boolean done() {
-			return false;
+			ACLMessage msg = receive();
+			if (msg != null) {
+				System.out.println(msg.getContent());
+			}
+			else {
+				block();
+			}
 		}
 	}
 	
 	public Taxi(int x, int y, Image img) {
 		super(x, y);
 		this.img = img;
-		
-		addBehaviour(new TaxiBehavior());
 	}
 
 	@Override
 	public void draw(SimGraphics g) {
 		g.drawImageToFit(img);
+	}
+
+	@Override
+	protected void setup() {
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		ServiceDescription sd = new ServiceDescription();
+		sd.setName(getName());
+		sd.setType("TaxiAgent");
+		dfd.addServices(sd);
+
+		try {
+			DFService.register(this, dfd);
+		} catch (FIPAException e) {
+			e.printStackTrace();
+		}
+
+		addBehaviour(new TaxiBehavior());
 	}
 }
