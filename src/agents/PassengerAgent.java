@@ -1,6 +1,4 @@
-package elements;
-
-import java.awt.Image;
+package agents;
 
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -8,12 +6,14 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import sajas.core.behaviours.SimpleBehaviour;
 import sajas.domain.DFService;
-import uchicago.src.sim.gui.SimGraphics;
 
-public class Passenger extends MapAgent {
-	private Image img;
-	
+public class PassengerAgent extends Agent {
 	private class PassengerBehavior extends SimpleBehaviour {
+		public PassengerBehavior(Agent a) {
+			super(a);
+		}
+		
+		@Override
 		public void action() {
 			DFAgentDescription template = new DFAgentDescription();
 			ServiceDescription sd1 = new ServiceDescription();
@@ -21,7 +21,7 @@ public class Passenger extends MapAgent {
 			template.addServices(sd1);
 
 			try {
-				DFAgentDescription[] result = DFService.search(Passenger.this, template);
+				DFAgentDescription[] result = DFService.search(PassengerAgent.this, template);
 				ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 
 				for (int i = 0; i < result.length; ++i) {
@@ -37,27 +37,22 @@ public class Passenger extends MapAgent {
 			}
 		}
 
+		@Override
 		public boolean done() {
 			return true;
 		}
 	}
 
-	public Passenger(int x, int y, Image img) {
+	public PassengerAgent(int x, int y) {
 		super(x, y);
-		this.img = img;
 	}
 
 	@Override
-	public void draw(SimGraphics g) {
-		g.drawImageToFit(img);
-	}
-
-	@Override
-	protected void setup() {
+	public void setup() {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setName(getName());
+		sd.setName(getLocalName());
 		sd.setType("PassengerAgent");
 		dfd.addServices(sd);
 
@@ -67,6 +62,6 @@ public class Passenger extends MapAgent {
 			e.printStackTrace();
 		}
 		
-		addBehaviour(new PassengerBehavior());
+		addBehaviour(new PassengerBehavior(this));
 	}
 }

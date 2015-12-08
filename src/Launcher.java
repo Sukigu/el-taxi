@@ -1,21 +1,17 @@
-import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-
-import elements.Building;
-import elements.Gas;
+import agents.PassengerAgent;
+import agents.TaxiAgent;
+import agents.TaxiAgent1;
+import agents.TaxiAgent2;
+import agents.TaxiAgent3;
+import elements.BuildingElement;
+import elements.GasStationElement;
 import elements.Map;
-import elements.MapElement;
-import elements.Passenger;
-import elements.Road;
-import elements.Stop;
-import elements.Taxi;
-import elements.Taxi1;
-import elements.Taxi2;
-import elements.Taxi3;
+import elements.PassengerElement;
+import elements.RoadElement;
+import elements.TaxiElement;
+import elements.TaxiStopElement;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.wrapper.StaleProxyException;
@@ -29,22 +25,14 @@ import uchicago.src.sim.space.Object2DGrid;
 import uchicago.src.sim.util.Random;
 
 public class Launcher extends Repast3Launcher {
-	private ContainerController container;
+	private ContainerController agentContainer;
 	private ArrayList<Drawable> drawList;
-	private ArrayList<MapElement> elementsList;
 	private DisplaySurface dsurf;
 	private Object2DGrid space;
-	private Map map;
-
-	private Image imgTaxi;
-	private Image imgPassenger;
-	private Image imgRoad;
-	private Image imgGas;
-	private Image imgStop;
-	private Image imgBuilding;
+	private Map elementMap;
 	
 	private int numTaxisBehavior1, numTaxisBehavior2, numTaxisBehavior3, numPassengers;
-
+	
 	public Launcher() {
 		super();
 		numTaxisBehavior1 = 2;
@@ -53,19 +41,8 @@ public class Launcher extends Repast3Launcher {
 		numPassengers = 5;
 		
 		drawList = new ArrayList<Drawable>();
-		elementsList = new ArrayList<MapElement>();
-		map = new Map("res/map.txt");
-		space = new Object2DGrid(map.getMapLines(), map.getMapCols());
-		try {
-			imgTaxi = ImageIO.read(new File("res/img/taxi.png"));
-			imgPassenger = ImageIO.read(new File("res/img/passenger.png"));
-			imgRoad = ImageIO.read(new File("res/img/road.jpg"));
-			imgGas = ImageIO.read(new File("res/img/gas.png"));
-			imgStop = ImageIO.read(new File("res/img/StopTaxi.jpg"));
-			imgBuilding = ImageIO.read(new File("res/img/building.png"));
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		elementMap = new Map("res/map.txt");
+		space = new Object2DGrid(elementMap.getMapLines(), elementMap.getMapCols());
 	}
 
 	@Override
@@ -109,38 +86,33 @@ public class Launcher extends Repast3Launcher {
 	protected void launchJADE() {
 		Runtime rt = Runtime.instance();
 		Profile p1 = new ProfileImpl();
-		container = rt.createMainContainer(p1);
+		agentContainer = rt.createMainContainer(p1);
 		
 		placeElements();
 	}
 
-	public void placeElements() {
-		for (int i = 0; i < map.getMap().size(); i++) {
-			for (int j = 0; j < map.getMap().get(i).size(); j++) {
-				if (map.getMap().get(i).get(j) == 1) {
-					Road road = new Road(i, j, space, imgRoad);
+	private void placeElements() {
+		for (int i = 0; i < elementMap.getMap().size(); i++) {
+			for (int j = 0; j < elementMap.getMap().get(i).size(); j++) {
+				if (elementMap.getMap().get(i).get(j) == 1) {
+					RoadElement road = new RoadElement(i, j);
 					drawList.add(road);
-					elementsList.add(road);
 					
 				}
-				else if (map.getMap().get(i).get(j) == 2) {
-					Stop stop = new Stop(i, j, space, imgStop);
+				else if (elementMap.getMap().get(i).get(j) == 2) {
+					TaxiStopElement stop = new TaxiStopElement(i, j);
 					drawList.add(stop);
-					elementsList.add(stop);
 				}
 				
-				else if (map.getMap().get(i).get(j) == 3) {
-					Gas gas = new Gas(i, j, space, imgGas);
+				else if (elementMap.getMap().get(i).get(j) == 3) {
+					GasStationElement gas = new GasStationElement(i, j);
 					drawList.add(gas);
-					elementsList.add(gas);
 				}
 				
-				else if (map.getMap().get(i).get(j) == 0) {
-					Building building = new Building(i, j, space, imgBuilding);
+				else if (elementMap.getMap().get(i).get(j) == 0) {
+					BuildingElement building = new BuildingElement(i, j);
 					drawList.add(building);
-					elementsList.add(building);
 				}
-				
 			}
 		}
 		
@@ -152,26 +124,26 @@ public class Launcher extends Repast3Launcher {
 			do {
 				x = Random.uniform.nextIntFromTo(0, space.getSizeX() - 1);
 				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
-			} while (map.getMapTransposed().get(y).get(x) == 0);
+			} while (elementMap.getMapTransposed().get(y).get(x) == 0);
 			
-			Taxi taxi = null;
+			TaxiAgent taxi = null;
 			
 			if (numTaxisBehavior1 > 0) {
-				taxi = new Taxi1(x, y, imgTaxi);
+				taxi = new TaxiAgent1(x, y);
 				--numTaxisBehavior1;
 			}
 			else if (numTaxisBehavior2 > 0) {
-				taxi = new Taxi2(x, y, imgTaxi);
+				taxi = new TaxiAgent2(x, y);
 				--numTaxisBehavior2;
 			}
 			else if (numTaxisBehavior3 > 0) {
-				taxi = new Taxi3(x, y, imgTaxi);
+				taxi = new TaxiAgent3(x, y);
 				--numTaxisBehavior3;
 			}
 			
-			drawList.add(taxi);
+			drawList.add(new TaxiElement(taxi));
 			try {
-				container.acceptNewAgent("taxi" + i, taxi).start();
+				agentContainer.acceptNewAgent("taxi" + i, taxi).start();
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
 			}
@@ -183,11 +155,16 @@ public class Launcher extends Repast3Launcher {
 			do {
 				x = Random.uniform.nextIntFromTo(0, space.getSizeX() - 1);
 				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
-			} while (map.getMapTransposed().get(y).get(x) == 0);
+			} while (elementMap.getMapTransposed().get(y).get(x) == 0);
 			
-			Passenger passenger = new Passenger(x, y, imgPassenger);
+			PassengerAgent passenger = new PassengerAgent(x, y);
 			
-			drawList.add(passenger);
+			drawList.add(new PassengerElement(passenger));
+			try {
+				agentContainer.acceptNewAgent("passenger" + i, passenger).start();
+			} catch (StaleProxyException e) {
+				e.printStackTrace();
+			}
 		}
 
 		for (Drawable o : drawList) {
@@ -227,5 +204,4 @@ public class Launcher extends Repast3Launcher {
 	public void setNumPassengers(int numPassengers) {
 		this.numPassengers = numPassengers;
 	}
-	
 }

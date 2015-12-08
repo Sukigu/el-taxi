@@ -1,6 +1,4 @@
-package elements;
-
-import java.awt.Image;
+package agents;
 
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -8,39 +6,32 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import sajas.core.behaviours.CyclicBehaviour;
 import sajas.domain.DFService;
-import uchicago.src.sim.gui.SimGraphics;
 
-public class Taxi extends MapAgent {
-	private Image img;
-	
+public class TaxiAgent extends Agent {
 	private class TaxiBehavior extends CyclicBehaviour {
+		public TaxiBehavior(Agent a) {
+			super(a);
+		}
+		
+		@Override
 		public void action() {
 			ACLMessage msg = receive();
 			if (msg != null) {
 				System.out.println(msg.getContent());
 			}
-			else {
-				block();
-			}
 		}
 	}
 	
-	public Taxi(int x, int y, Image img) {
+	public TaxiAgent(int x, int y) {
 		super(x, y);
-		this.img = img;
 	}
 
 	@Override
-	public void draw(SimGraphics g) {
-		g.drawImageToFit(img);
-	}
-
-	@Override
-	protected void setup() {
+	public void setup() {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setName(getName());
+		sd.setName(getLocalName());
 		sd.setType("TaxiAgent");
 		dfd.addServices(sd);
 
@@ -50,6 +41,6 @@ public class Taxi extends MapAgent {
 			e.printStackTrace();
 		}
 
-		addBehaviour(new TaxiBehavior());
+		addBehaviour(new TaxiBehavior(this));
 	}
 }
