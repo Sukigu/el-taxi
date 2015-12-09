@@ -24,6 +24,11 @@ public class PassengerElement extends Element {
 		return img;
 	}
 	
+	@Override
+	public boolean canHaveElementOnTop() {
+		return false;
+	}
+	
 	public PassengerElement(PassengerAgent agent) {
 		super(agent.getX(), agent.getY());
 		this.agent = agent;

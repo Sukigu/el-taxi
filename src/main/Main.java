@@ -1,3 +1,4 @@
+package main;
 import uchicago.src.sim.engine.SimInit;
 
 public class Main {

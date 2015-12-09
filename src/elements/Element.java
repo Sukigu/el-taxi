@@ -16,6 +16,8 @@ public abstract class Element implements Drawable {
 	
 	protected abstract Image getImg();
 	
+	public abstract boolean canHaveElementOnTop();
+	
 	@Override
 	public final void draw(SimGraphics graphics) {
 		graphics.drawImageToFit(getImg());

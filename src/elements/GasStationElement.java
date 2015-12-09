@@ -21,6 +21,11 @@ public class GasStationElement extends Element {
 		return img;
 	}
 	
+	@Override
+	public boolean canHaveElementOnTop() {
+		return true;
+	}
+	
 	public GasStationElement(int x, int y) {
 		super(x, y);
 	}

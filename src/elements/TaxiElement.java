@@ -24,6 +24,11 @@ public class TaxiElement extends Element {
 		return img;
 	}
 	
+	@Override
+	public boolean canHaveElementOnTop() {
+		return false;
+	}
+	
 	public TaxiElement(TaxiAgent agent) {
 		super(agent.getX(), agent.getY());
 		this.agent = agent;
@@ -31,5 +36,14 @@ public class TaxiElement extends Element {
 	
 	public TaxiAgent getAgent() {
 		return agent;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o.getClass() == TaxiElement.class) {
+			TaxiElement t = (TaxiElement) o;
+			return agent == t.agent;
+		}
+		else return false;
 	}
 }

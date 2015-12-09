@@ -21,6 +21,11 @@ public class TaxiStopElement extends Element {
 		return img;
 	}
 	
+	@Override
+	public boolean canHaveElementOnTop() {
+		return true;
+	}
+	
 	public TaxiStopElement(int x, int y) {
 		super(x, y);
 	}

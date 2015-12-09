@@ -17,8 +17,14 @@ public class BuildingElement extends Element {
 		}
 	}
 	
+	@Override
 	protected Image getImg() {
 		return img;
+	}
+	
+	@Override
+	public boolean canHaveElementOnTop() {
+		return false;
 	}
 	
 	public BuildingElement(int x, int y) {

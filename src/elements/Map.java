@@ -6,61 +6,68 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Map {
-	public ArrayList<ArrayList<Integer>> map;
-	public ArrayList<ArrayList<Integer>> mapTransposed;
+	private ArrayList<ArrayList<MapSpace>> structure;
 	
 	public Map (String file) {
-		map = new ArrayList<ArrayList<Integer>>();
+		structure = new ArrayList<ArrayList<MapSpace>>();
 		
-		try (BufferedReader br = new BufferedReader(new FileReader(file)))
-		{
-			String sCurrentLine = null;
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String sCurrentLine;
 			
-			while ((sCurrentLine = br.readLine()) != null) {
-				ArrayList<Integer> line = new ArrayList<Integer>();
-				for (int i = 0; i < sCurrentLine.length(); i++) {
-					line.add((int) sCurrentLine.charAt(i) - (int) '0'); //-48
+			for (int y = 0; ((sCurrentLine = br.readLine()) != null); ++y) {
+				ArrayList<MapSpace> line = new ArrayList<MapSpace>();
+				
+				for (int x = 0; x < sCurrentLine.length(); ++x) {
+					MapSpace newSpace = null;
+					
+					switch (sCurrentLine.charAt(x)) {
+					case '0':
+						newSpace = new MapSpace(new BuildingElement(y, x));
+						break;
+					case '1':
+						newSpace = new MapSpace(new RoadElement(y, x));
+						break;
+					case '2':
+						newSpace = new MapSpace(new TaxiStopElement(y, x));
+						break;
+					case '3':
+						newSpace = new MapSpace(new GasStationElement(y, x));
+						break;
+					}
+					
+					line.add(newSpace);
 				}
-				map.add(line);
+				
+				structure.add(line);
 			}
-			
-			mapTransposed = transpose(map);
 
 			br.close();
-			
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
-
+		}
+		
+		structure = transpose(structure);
 	}
 	
-	public ArrayList<ArrayList<Integer>> getMapTransposed() {
-		return mapTransposed;
+	public MapSpace getSpaceAt(int x, int y) {
+		return structure.get(y).get(x);
 	}
 
-	public int getMapCols() {
-		return map.size();
+	public int getDimX() {
+		return structure.get(0).size();
 	}
 
-	public int getMapLines() {
-		return map.get(0).size();
-	}
-
-	public ArrayList<ArrayList<Integer>> getMap() {
-		return map;
-	}
-
-	public void setMap(ArrayList<ArrayList<Integer>> map) {
-		this.map = map;
+	public int getDimY() {
+		return structure.size();
 	}
 	
-	public static ArrayList<ArrayList<Integer>> transpose(ArrayList<ArrayList<Integer>> list) {
+	private ArrayList<ArrayList<MapSpace>> transpose(ArrayList<ArrayList<MapSpace>> list) {
 		int r = list.size();
 		int c = list.get(r-1).size();
-		ArrayList<ArrayList<Integer>> t = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<MapSpace>> t = new ArrayList<ArrayList<MapSpace>>();
 		
 		  for(int i = 0; i < r; ++i) {
-			 ArrayList<Integer> line = new ArrayList<Integer>();
+			 ArrayList<MapSpace> line = new ArrayList<MapSpace>();
 		     for(int j = 0; j < c; ++j) {
 		    	 line.add(list.get(j).get(i));
 		     }

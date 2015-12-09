@@ -21,6 +21,11 @@ public class RoadElement extends Element {
 		return img;
 	}
 	
+	@Override
+	public boolean canHaveElementOnTop() {
+		return true;
+	}
+	
 	public RoadElement(int x, int y) {
 		super(x, y);
 	}

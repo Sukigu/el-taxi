@@ -1,3 +1,4 @@
+package main;
 import java.util.ArrayList;
 
 import agents.PassengerAgent;
@@ -5,13 +6,9 @@ import agents.TaxiAgent;
 import agents.TaxiAgent1;
 import agents.TaxiAgent2;
 import agents.TaxiAgent3;
-import elements.BuildingElement;
-import elements.GasStationElement;
 import elements.Map;
 import elements.PassengerElement;
-import elements.RoadElement;
 import elements.TaxiElement;
-import elements.TaxiStopElement;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.wrapper.StaleProxyException;
@@ -42,7 +39,7 @@ public class Launcher extends Repast3Launcher {
 		
 		drawList = new ArrayList<Drawable>();
 		elementMap = new Map("res/map.txt");
-		space = new Object2DGrid(elementMap.getMapLines(), elementMap.getMapCols());
+		space = new Object2DGrid(elementMap.getDimX(), elementMap.getDimY());
 	}
 
 	@Override
@@ -92,27 +89,9 @@ public class Launcher extends Repast3Launcher {
 	}
 
 	private void placeElements() {
-		for (int i = 0; i < elementMap.getMap().size(); i++) {
-			for (int j = 0; j < elementMap.getMap().get(i).size(); j++) {
-				if (elementMap.getMap().get(i).get(j) == 1) {
-					RoadElement road = new RoadElement(i, j);
-					drawList.add(road);
-					
-				}
-				else if (elementMap.getMap().get(i).get(j) == 2) {
-					TaxiStopElement stop = new TaxiStopElement(i, j);
-					drawList.add(stop);
-				}
-				
-				else if (elementMap.getMap().get(i).get(j) == 3) {
-					GasStationElement gas = new GasStationElement(i, j);
-					drawList.add(gas);
-				}
-				
-				else if (elementMap.getMap().get(i).get(j) == 0) {
-					BuildingElement building = new BuildingElement(i, j);
-					drawList.add(building);
-				}
+		for (int x = 0; x < elementMap.getDimX(); ++x) {
+			for (int y = 0; y < elementMap.getDimY(); ++y) {
+				drawList.add(elementMap.getSpaceAt(x, y).getStaticElement());
 			}
 		}
 		
@@ -124,7 +103,7 @@ public class Launcher extends Repast3Launcher {
 			do {
 				x = Random.uniform.nextIntFromTo(0, space.getSizeX() - 1);
 				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
-			} while (elementMap.getMapTransposed().get(y).get(x) == 0);
+			} while (!elementMap.getSpaceAt(x, y).getStaticElement().canHaveElementOnTop());
 			
 			TaxiAgent taxi = null;
 			
@@ -155,7 +134,7 @@ public class Launcher extends Repast3Launcher {
 			do {
 				x = Random.uniform.nextIntFromTo(0, space.getSizeX() - 1);
 				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
-			} while (elementMap.getMapTransposed().get(y).get(x) == 0);
+			} while (!elementMap.getSpaceAt(x, y).getStaticElement().canHaveElementOnTop());
 			
 			PassengerAgent passenger = new PassengerAgent(x, y);
 			
@@ -172,7 +151,7 @@ public class Launcher extends Repast3Launcher {
 		}
 	}
 
-	/* Gets and sets for parameters */
+	/* Getters and setters for parameters */
 	public int getNumTaxisBehavior1() {
 		return numTaxisBehavior1;
 	}
