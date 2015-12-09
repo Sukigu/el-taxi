@@ -17,6 +17,7 @@ public class GasStationElement extends Element {
 		}
 	}
 	
+	@Override
 	protected Image getImg() {
 		return img;
 	}

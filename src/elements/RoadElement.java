@@ -17,6 +17,7 @@ public class RoadElement extends Element {
 		}
 	}
 	
+	@Override
 	protected Image getImg() {
 		return img;
 	}

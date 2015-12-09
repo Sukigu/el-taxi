@@ -20,6 +20,7 @@ public class PassengerElement extends Element {
 		}
 	}
 	
+	@Override
 	protected Image getImg() {
 		return img;
 	}
