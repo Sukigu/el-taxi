@@ -20,6 +20,11 @@ public class PassengerElement extends Element {
 		}
 	}
 	
+	public PassengerElement(PassengerAgent agent) {
+		super(agent.getX(), agent.getY());
+		this.agent = agent;
+	}
+	
 	@Override
 	protected Image getImg() {
 		return img;
@@ -30,9 +35,24 @@ public class PassengerElement extends Element {
 		return false;
 	}
 	
-	public PassengerElement(PassengerAgent agent) {
-		super(agent.getX(), agent.getY());
-		this.agent = agent;
+	@Override
+	public int getX() {
+		return agent.getX();
+	}
+	
+	@Override
+	public void setX(int x) {
+		agent.setX(x);
+	}
+	
+	@Override
+	public int getY() {
+		return agent.getY();
+	}
+	
+	@Override
+	public void setY(int y) {
+		agent.setY(y);
 	}
 	
 	public PassengerAgent getAgent() {

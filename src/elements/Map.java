@@ -8,6 +8,35 @@ import java.util.ArrayList;
 public class Map {
 	private ArrayList<ArrayList<MapSpace>> structure;
 	
+	public MapSpace getSpaceAt(int x, int y) {
+		return structure.get(y).get(x);
+	}
+
+	public int getDimX() {
+		return structure.get(0).size();
+	}
+
+	public int getDimY() {
+		return structure.size();
+	}
+	
+	public ArrayList<MapSpace> getPossibleMovesFrom(MapSpace space) {
+		ArrayList<MapSpace> possibleMoves = new ArrayList<MapSpace>();
+		
+		int x = space.getStaticElement().getX(), y = space.getStaticElement().getY();
+		
+		if (y - 1 >= 0 && sameStaticElement(space, getSpaceAt(x, y - 1))) possibleMoves.add(getSpaceAt(x, y - 1));
+		if (y + 1 < getDimY() && sameStaticElement(space, getSpaceAt(x, y + 1))) possibleMoves.add(getSpaceAt(x, y + 1));
+		if (x - 1 >= 0 && sameStaticElement(space, getSpaceAt(x - 1, y))) possibleMoves.add(getSpaceAt(x - 1, y));
+		if (x + 1 < getDimX() && sameStaticElement(space, getSpaceAt(x + 1, y))) possibleMoves.add(getSpaceAt(x + 1, y));
+		
+		return possibleMoves;
+	}
+	
+	private boolean sameStaticElement(MapSpace space1, MapSpace space2) {
+		return space1.getStaticElement().getClass() == space2.getStaticElement().getClass();
+	}
+	
 	public Map (String file) {
 		structure = new ArrayList<ArrayList<MapSpace>>();
 		
@@ -47,18 +76,6 @@ public class Map {
 		}
 		
 		structure = transpose(structure);
-	}
-	
-	public MapSpace getSpaceAt(int x, int y) {
-		return structure.get(y).get(x);
-	}
-
-	public int getDimX() {
-		return structure.get(0).size();
-	}
-
-	public int getDimY() {
-		return structure.size();
 	}
 	
 	private ArrayList<ArrayList<MapSpace>> transpose(ArrayList<ArrayList<MapSpace>> list) {
