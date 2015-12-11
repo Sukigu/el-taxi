@@ -27,11 +27,9 @@ public class Map {
 	}
 	
 	public void moveElement(Element elem, MapSpace spaceOrigin, MapSpace spaceDestination) {
-		ArrayList<MapSpace> possibleMoves = getPossibleMovesFrom(spaceOrigin);
-		
-		if (!possibleMoves.contains(spaceDestination)) throw new IllegalArgumentException();
-		
 		spaceOrigin.removeTopElement(elem);
+		elem.setX(spaceDestination.getStaticElement().getX());
+		elem.setY(spaceDestination.getStaticElement().getY());
 		spaceDestination.addTopElement(elem);
 	}
 	
@@ -97,7 +95,9 @@ public class Map {
 						newSpace = new MapSpace(new RoadElement(y, x));
 						break;
 					case '2':
-						newSpace = new MapSpace(new TaxiStopElement(y, x));
+						TaxiStopElement taxiStop = new TaxiStopElement(y, x);
+						newSpace = new MapSpace(taxiStop);
+						taxiStops.add(taxiStop);
 						break;
 					case '3':
 						newSpace = new MapSpace(new GasStationElement(y, x));

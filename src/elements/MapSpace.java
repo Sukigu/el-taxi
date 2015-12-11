@@ -30,7 +30,7 @@ public class MapSpace {
 		topElements.remove(element);
 	}
 	
-	public Element searchAgent(Agent agent) {
+	public Element searchByAgent(Agent agent) {
 		for (Element e : topElements) {
 			if (e instanceof TaxiElement) {
 				TaxiElement taxi = (TaxiElement) e;

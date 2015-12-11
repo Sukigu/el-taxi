@@ -13,7 +13,7 @@ import sajas.core.behaviours.SimpleBehaviour;
 import sajas.domain.DFService;
 
 public class PassengerAgent extends Agent {
-	TaxiStopElement initStop;
+	MapSpace goalSpace;
 
 	private class PassengerBehavior extends SimpleBehaviour {
 		public PassengerBehavior(Agent a) {
@@ -21,11 +21,11 @@ public class PassengerAgent extends Agent {
 		}
 
 		@Override
-		public void action() { // TODO: Concluir
+		public void action() {
 			MapSpace currentSpace = elementMap.getSpaceAt(x, y);
-			ArrayList<MapSpace> possibleNextMoves = elementMap.getPossibleMovesFrom(currentSpace);
+			MapSpace nextMove = elementMap.getNearestMoveBetween(currentSpace, goalSpace);
+			elementMap.moveElement(elementMap.getSpaceAt(x, y).searchByAgent(PassengerAgent.this), currentSpace, nextMove);
 		}
-
 		/*@Override
 		public void action() {
 			DFAgentDescription template = new DFAgentDescription();
@@ -56,15 +56,20 @@ public class PassengerAgent extends Agent {
 		}
 	}
 
-	public PassengerAgent(int x, int y, Map elementMap) { // TODO: Verificar redundância com novos métodos do Map
+	public PassengerAgent(int x, int y, Map elementMap) {
 		super(x, y, elementMap);
 
 		ArrayList<TaxiStopElement> taxiStops = elementMap.getTaxiStops();
-		int minDistanceToStop = Integer.MAX_VALUE;
+		ArrayList<MapSpace> stopSpaces = new ArrayList<MapSpace>();
 		for (TaxiStopElement taxiStop : taxiStops) {
-			int distanceToStop = Math.abs(taxiStop.getX() - x) + Math.abs(taxiStop.getY() - y);
+			stopSpaces.add(elementMap.getSpaceAt(taxiStop.getX(), taxiStop.getY()));
+		}
+		
+		int minDistanceToStop = Integer.MAX_VALUE;
+		for (MapSpace stopSpace : stopSpaces) {
+			int distanceToStop = elementMap.getDistanceBetween(elementMap.getSpaceAt(x, y), stopSpace);
 			if (distanceToStop < minDistanceToStop) {
-				initStop = taxiStop;
+				goalSpace = stopSpace;
 				minDistanceToStop = distanceToStop;
 			}
 		}

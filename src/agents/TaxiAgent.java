@@ -22,7 +22,7 @@ public class TaxiAgent extends Agent {
 			Element selectedMoveStaticElement = possibleNextMoves.get(selectedMoveIndex).getStaticElement();
 			MapSpace selectedMove = elementMap.getSpaceAt(selectedMoveStaticElement.getX(), selectedMoveStaticElement.getY());
 			
-			Element thisElement = currentSpace.searchAgent(TaxiAgent.this);
+			Element thisElement = currentSpace.searchByAgent(TaxiAgent.this);
 			currentSpace.removeTopElement(thisElement);
 			thisElement.setX(selectedMove.getStaticElement().getX());
 			thisElement.setY(selectedMove.getStaticElement().getY());
