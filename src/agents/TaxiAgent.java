@@ -1,11 +1,12 @@
 package agents;
 
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.lang.acl.ACLMessage;
+import java.util.ArrayList;
+import java.util.Random;
+
+import elements.Element;
+import elements.Map;
+import elements.MapSpace;
 import sajas.core.behaviours.CyclicBehaviour;
-import sajas.domain.DFService;
 
 public class TaxiAgent extends Agent {
 	private class TaxiBehavior extends CyclicBehaviour {
@@ -15,31 +16,27 @@ public class TaxiAgent extends Agent {
 		
 		@Override
 		public void action() {
-			ACLMessage msg = receive();
-			if (msg != null) {
-				System.out.println(msg.getContent());
-			}
+			MapSpace currentSpace = elementMap.getSpaceAt(x, y);
+			ArrayList<MapSpace> possibleNextMoves = elementMap.getPossibleMovesFrom(currentSpace);
+			int selectedMoveIndex = new Random().nextInt(possibleNextMoves.size());
+			Element selectedMoveStaticElement = possibleNextMoves.get(selectedMoveIndex).getStaticElement();
+			MapSpace selectedMove = elementMap.getSpaceAt(selectedMoveStaticElement.getX(), selectedMoveStaticElement.getY());
+			
+			Element thisElement = currentSpace.searchAgent(TaxiAgent.this);
+			currentSpace.removeTopElement(thisElement);
+			thisElement.setX(selectedMove.getStaticElement().getX());
+			thisElement.setY(selectedMove.getStaticElement().getY());
+			selectedMove.addTopElement(thisElement);
 		}
 	}
 	
-	public TaxiAgent(int x, int y) {
-		super(x, y);
+	public TaxiAgent(int x, int y, Map elementMap) {
+		super(x, y, elementMap);
 	}
 
 	@Override
 	public void setup() {
-		DFAgentDescription dfd = new DFAgentDescription();
-		dfd.setName(getAID());
-		ServiceDescription sd = new ServiceDescription();
-		sd.setName(getLocalName());
-		sd.setType("TaxiAgent");
-		dfd.addServices(sd);
-
-		try {
-			DFService.register(this, dfd);
-		} catch (FIPAException e) {
-			e.printStackTrace();
-		}
+		super.setup("TaxiAgent");
 
 		addBehaviour(new TaxiBehavior(this));
 	}

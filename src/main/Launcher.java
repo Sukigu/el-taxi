@@ -108,19 +108,22 @@ public class Launcher extends Repast3Launcher {
 			TaxiAgent taxi = null;
 			
 			if (numTaxisBehavior1 > 0) {
-				taxi = new TaxiAgent1(x, y);
+				taxi = new TaxiAgent1(x, y, elementMap);
 				--numTaxisBehavior1;
 			}
 			else if (numTaxisBehavior2 > 0) {
-				taxi = new TaxiAgent2(x, y);
+				taxi = new TaxiAgent2(x, y, elementMap);
 				--numTaxisBehavior2;
 			}
 			else if (numTaxisBehavior3 > 0) {
-				taxi = new TaxiAgent3(x, y);
+				taxi = new TaxiAgent3(x, y, elementMap);
 				--numTaxisBehavior3;
 			}
 			
-			drawList.add(new TaxiElement(taxi));
+			TaxiElement newElement = new TaxiElement(taxi);
+			elementMap.getSpaceAt(x, y).addTopElement(newElement);
+			drawList.add(newElement);
+			
 			try {
 				agentContainer.acceptNewAgent("taxi" + i, taxi).start();
 			} catch (StaleProxyException e) {
@@ -136,9 +139,12 @@ public class Launcher extends Repast3Launcher {
 				y = Random.uniform.nextIntFromTo(0, space.getSizeY() - 1);
 			} while (!elementMap.getSpaceAt(x, y).getStaticElement().canHaveElementOnTop());
 			
-			PassengerAgent passenger = new PassengerAgent(x, y);
+			PassengerAgent passenger = new PassengerAgent(x, y, elementMap);
 			
-			drawList.add(new PassengerElement(passenger));
+			PassengerElement newElement = new PassengerElement(passenger);
+			elementMap.getSpaceAt(x, y).addTopElement(newElement);
+			drawList.add(newElement);
+			
 			try {
 				agentContainer.acceptNewAgent("passenger" + i, passenger).start();
 			} catch (StaleProxyException e) {

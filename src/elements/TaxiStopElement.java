@@ -17,6 +17,10 @@ public class TaxiStopElement extends Element {
 		}
 	}
 	
+	public TaxiStopElement(int x, int y) {
+		super(x, y);
+	}
+	
 	@Override
 	protected Image getImg() {
 		return img;
@@ -25,9 +29,5 @@ public class TaxiStopElement extends Element {
 	@Override
 	public boolean canHaveElementOnTop() {
 		return true;
-	}
-	
-	public TaxiStopElement(int x, int y) {
-		super(x, y);
 	}
 }

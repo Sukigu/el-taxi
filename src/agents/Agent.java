@@ -1,11 +1,19 @@
 package agents;
 
+import elements.Map;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import sajas.domain.DFService;
+
 public abstract class Agent extends sajas.core.Agent {
 	protected int x, y;
+	protected Map elementMap;
 	
-	public Agent(int x, int y) {
+	public Agent(int x, int y, Map elementMap) {
 		this.x = x;
 		this.y = y;
+		this.elementMap = elementMap;
 	}
 
 	public int getX() {
@@ -22,5 +30,20 @@ public abstract class Agent extends sajas.core.Agent {
 	
 	public void setY(int y) {
 		this.y = y;
+	}
+	
+	protected void setup(String agentType) {
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		ServiceDescription sd = new ServiceDescription();
+		sd.setName(getLocalName());
+		sd.setType(agentType);
+		dfd.addServices(sd);
+
+		try {
+			DFService.register(this, dfd);
+		} catch (FIPAException e) {
+			e.printStackTrace();
+		}
 	}
 }

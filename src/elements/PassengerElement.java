@@ -58,4 +58,13 @@ public class PassengerElement extends Element {
 	public PassengerAgent getAgent() {
 		return agent;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof PassengerElement) {
+			PassengerElement t = (PassengerElement) o;
+			return agent == t.agent;
+		}
+		else return false;
+	}
 }

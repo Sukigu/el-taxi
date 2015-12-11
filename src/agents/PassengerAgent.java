@@ -1,5 +1,10 @@
 package agents;
 
+import java.util.ArrayList;
+
+import elements.Map;
+import elements.MapSpace;
+import elements.TaxiStopElement;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -8,16 +13,24 @@ import sajas.core.behaviours.SimpleBehaviour;
 import sajas.domain.DFService;
 
 public class PassengerAgent extends Agent {
+	TaxiStopElement initStop;
+
 	private class PassengerBehavior extends SimpleBehaviour {
 		public PassengerBehavior(Agent a) {
 			super(a);
 		}
-		
+
 		@Override
+		public void action() { // TODO: Concluir
+			MapSpace currentSpace = elementMap.getSpaceAt(x, y);
+			ArrayList<MapSpace> possibleNextMoves = elementMap.getPossibleMovesFrom(currentSpace);
+		}
+
+		/*@Override
 		public void action() {
 			DFAgentDescription template = new DFAgentDescription();
 			ServiceDescription sd1 = new ServiceDescription();
-			sd1.setType("TaxiAgent");
+			sd1.setType("TaxiStopAgent");
 			template.addServices(sd1);
 
 			try {
@@ -35,7 +48,7 @@ public class PassengerAgent extends Agent {
 			} catch (FIPAException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 
 		@Override
 		public boolean done() {
@@ -43,25 +56,24 @@ public class PassengerAgent extends Agent {
 		}
 	}
 
-	public PassengerAgent(int x, int y) {
-		super(x, y);
+	public PassengerAgent(int x, int y, Map elementMap) { // TODO: Verificar redundância com novos métodos do Map
+		super(x, y, elementMap);
+
+		ArrayList<TaxiStopElement> taxiStops = elementMap.getTaxiStops();
+		int minDistanceToStop = Integer.MAX_VALUE;
+		for (TaxiStopElement taxiStop : taxiStops) {
+			int distanceToStop = Math.abs(taxiStop.getX() - x) + Math.abs(taxiStop.getY() - y);
+			if (distanceToStop < minDistanceToStop) {
+				initStop = taxiStop;
+				minDistanceToStop = distanceToStop;
+			}
+		}
 	}
 
 	@Override
 	public void setup() {
-		DFAgentDescription dfd = new DFAgentDescription();
-		dfd.setName(getAID());
-		ServiceDescription sd = new ServiceDescription();
-		sd.setName(getLocalName());
-		sd.setType("PassengerAgent");
-		dfd.addServices(sd);
+		super.setup("PassengerAgent");
 
-		try {
-			DFService.register(this, dfd);
-		} catch (FIPAException e) {
-			e.printStackTrace();
-		}
-		
 		addBehaviour(new PassengerBehavior(this));
 	}
 }

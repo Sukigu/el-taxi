@@ -61,7 +61,7 @@ public class TaxiElement extends Element {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o.getClass() == TaxiElement.class) {
+		if (o instanceof TaxiElement) {
 			TaxiElement t = (TaxiElement) o;
 			return agent == t.agent;
 		}
