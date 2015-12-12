@@ -15,46 +15,51 @@ import sajas.domain.DFService;
 public class PassengerAgent extends Agent {
 	MapSpace goalSpace;
 
-	private class PassengerBehavior extends SimpleBehaviour {
-		public PassengerBehavior(Agent a) {
+	private class GoToStopBehavior extends SimpleBehaviour {
+		private boolean arrived;
+		
+		public GoToStopBehavior(Agent a) {
 			super(a);
+			arrived = false;
 		}
 
 		@Override
 		public void action() {
 			MapSpace currentSpace = elementMap.getSpaceAt(x, y);
 			MapSpace nextMove = elementMap.getNearestMoveBetween(currentSpace, goalSpace);
-			elementMap.moveElement(elementMap.getSpaceAt(x, y).searchByAgent(PassengerAgent.this), currentSpace, nextMove);
+			elementMap.moveElement(currentSpace.searchByAgent(PassengerAgent.this), currentSpace, nextMove);
+			if (nextMove == goalSpace) arrived = true;
 		}
-		/*@Override
-		public void action() {
-			DFAgentDescription template = new DFAgentDescription();
-			ServiceDescription sd1 = new ServiceDescription();
-			sd1.setType("TaxiStopAgent");
-			template.addServices(sd1);
-
-			try {
-				DFAgentDescription[] result = DFService.search(PassengerAgent.this, template);
-				ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-
-				for (int i = 0; i < result.length; ++i) {
-					if (!result[i].getName().getLocalName().equals(getLocalName())) {
-						msg.addReceiver(result[i].getName());
-					}
-				}
-
-				msg.setContent("Come get me!");
-				send(msg);
-			} catch (FIPAException e) {
-				e.printStackTrace();
-			}
-		}*/
 
 		@Override
 		public boolean done() {
-			return true;
+			return arrived;
 		}
 	}
+	
+	/*@Override
+	public void action() {
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd1 = new ServiceDescription();
+		sd1.setType("TaxiStopAgent");
+		template.addServices(sd1);
+
+		try {
+			DFAgentDescription[] result = DFService.search(PassengerAgent.this, template);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+
+			for (int i = 0; i < result.length; ++i) {
+				if (!result[i].getName().getLocalName().equals(getLocalName())) {
+					msg.addReceiver(result[i].getName());
+				}
+			}
+
+			msg.setContent("Come get me!");
+			send(msg);
+		} catch (FIPAException e) {
+			e.printStackTrace();
+		}
+	}*/
 
 	public PassengerAgent(int x, int y, Map elementMap) {
 		super(x, y, elementMap);
@@ -79,6 +84,6 @@ public class PassengerAgent extends Agent {
 	public void setup() {
 		super.setup("PassengerAgent");
 
-		addBehaviour(new PassengerBehavior(this));
+		addBehaviour(new GoToStopBehavior(this));
 	}
 }

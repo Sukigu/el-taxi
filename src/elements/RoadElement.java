@@ -27,6 +27,11 @@ public class RoadElement extends Element {
 		return true;
 	}
 	
+	@Override
+	public boolean canBeTraveled() {
+		return true;
+	}
+	
 	public RoadElement(int x, int y) {
 		super(x, y);
 	}

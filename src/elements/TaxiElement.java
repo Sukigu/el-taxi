@@ -36,6 +36,11 @@ public class TaxiElement extends Element {
 	}
 	
 	@Override
+	public boolean canBeTraveled() {
+		return false;
+	}
+	
+	@Override
 	public int getX() {
 		return agent.getX();
 	}

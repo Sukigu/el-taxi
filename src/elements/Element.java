@@ -18,6 +18,8 @@ public abstract class Element implements Drawable {
 	
 	public abstract boolean canHaveElementOnTop();
 	
+	public abstract boolean canBeTraveled();
+	
 	@Override
 	public final void draw(SimGraphics graphics) {
 		graphics.drawImageToFit(getImg());

@@ -19,14 +19,9 @@ public class TaxiAgent extends Agent {
 			MapSpace currentSpace = elementMap.getSpaceAt(x, y);
 			ArrayList<MapSpace> possibleNextMoves = elementMap.getPossibleMovesFrom(currentSpace);
 			int selectedMoveIndex = new Random().nextInt(possibleNextMoves.size());
-			Element selectedMoveStaticElement = possibleNextMoves.get(selectedMoveIndex).getStaticElement();
-			MapSpace selectedMove = elementMap.getSpaceAt(selectedMoveStaticElement.getX(), selectedMoveStaticElement.getY());
+			MapSpace selectedMove = possibleNextMoves.get(selectedMoveIndex);
 			
-			Element thisElement = currentSpace.searchByAgent(TaxiAgent.this);
-			currentSpace.removeTopElement(thisElement);
-			thisElement.setX(selectedMove.getStaticElement().getX());
-			thisElement.setY(selectedMove.getStaticElement().getY());
-			selectedMove.addTopElement(thisElement);
+			elementMap.moveElement(currentSpace.searchByAgent(TaxiAgent.this), currentSpace, selectedMove);
 		}
 	}
 	

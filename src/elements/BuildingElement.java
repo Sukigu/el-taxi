@@ -27,6 +27,11 @@ public class BuildingElement extends Element {
 		return false;
 	}
 	
+	@Override
+	public boolean canBeTraveled() {
+		return false;
+	}
+	
 	public BuildingElement(int x, int y) {
 		super(x, y);
 	}

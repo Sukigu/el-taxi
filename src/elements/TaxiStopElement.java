@@ -30,4 +30,9 @@ public class TaxiStopElement extends Element {
 	public boolean canHaveElementOnTop() {
 		return true;
 	}
+	
+	@Override
+	public boolean canBeTraveled() {
+		return true;
+	}
 }

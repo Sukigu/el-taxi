@@ -9,7 +9,7 @@ import java.util.Random;
 public class Map {
 	private ArrayList<ArrayList<MapSpace>> structure;
 	private ArrayList<TaxiStopElement> taxiStops;
-	
+
 	public MapSpace getSpaceAt(int x, int y) {
 		return structure.get(y).get(x);
 	}
@@ -21,35 +21,35 @@ public class Map {
 	public int getDimY() {
 		return structure.size();
 	}
-	
+
 	public ArrayList<TaxiStopElement> getTaxiStops() {
 		return taxiStops;
 	}
-	
+
 	public void moveElement(Element elem, MapSpace spaceOrigin, MapSpace spaceDestination) {
 		spaceOrigin.removeTopElement(elem);
 		elem.setX(spaceDestination.getStaticElement().getX());
 		elem.setY(spaceDestination.getStaticElement().getY());
 		spaceDestination.addTopElement(elem);
 	}
-	
+
 	public ArrayList<MapSpace> getPossibleMovesFrom(MapSpace space) {
 		ArrayList<MapSpace> possibleMoves = new ArrayList<MapSpace>();
-		
+
 		int x = space.getStaticElement().getX(), y = space.getStaticElement().getY();
-		
-		if (y - 1 >= 0 && sameStaticElement(space, getSpaceAt(x, y - 1))) possibleMoves.add(getSpaceAt(x, y - 1));
-		if (y + 1 < getDimY() && sameStaticElement(space, getSpaceAt(x, y + 1))) possibleMoves.add(getSpaceAt(x, y + 1));
-		if (x - 1 >= 0 && sameStaticElement(space, getSpaceAt(x - 1, y))) possibleMoves.add(getSpaceAt(x - 1, y));
-		if (x + 1 < getDimX() && sameStaticElement(space, getSpaceAt(x + 1, y))) possibleMoves.add(getSpaceAt(x + 1, y));
-		
+
+		if (y - 1 >= 0 && canTravelBetween(space, getSpaceAt(x, y - 1))) possibleMoves.add(getSpaceAt(x, y - 1));
+		if (y + 1 < getDimY() && canTravelBetween(space, getSpaceAt(x, y + 1))) possibleMoves.add(getSpaceAt(x, y + 1));
+		if (x - 1 >= 0 && canTravelBetween(space, getSpaceAt(x - 1, y))) possibleMoves.add(getSpaceAt(x - 1, y));
+		if (x + 1 < getDimX() && canTravelBetween(space, getSpaceAt(x + 1, y))) possibleMoves.add(getSpaceAt(x + 1, y));
+
 		return possibleMoves;
 	}
-	
+
 	public MapSpace getNearestMoveBetween(MapSpace spaceOrigin, MapSpace spaceDestination) {
 		MapSpace nearestMove = null;
 		ArrayList<MapSpace> originNeighbors = getPossibleMovesFrom(spaceOrigin);
-		
+
 		int minDistance = Integer.MAX_VALUE;
 		for (MapSpace neighbor : originNeighbors) {
 			int distance = getDistanceBetween(neighbor, spaceDestination);
@@ -62,31 +62,38 @@ public class Map {
 				nearestMove = new Random().nextBoolean() ? neighbor : nearestMove;
 			}
 		}
-		
+
+		try {
+			if (nearestMove == null) throw new Exception();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return nearestMove;
 	}
-	
+
 	public int getDistanceBetween(MapSpace spaceOrigin, MapSpace spaceDestination) {
 		return Math.abs(spaceDestination.getStaticElement().getX() - spaceOrigin.getStaticElement().getX()) + Math.abs(spaceDestination.getStaticElement().getY() - spaceOrigin.getStaticElement().getY());
 	}
-	
-	private boolean sameStaticElement(MapSpace space1, MapSpace space2) {
-		return space1.getStaticElement().getClass() == space2.getStaticElement().getClass();
+
+	private boolean canTravelBetween(MapSpace space1, MapSpace space2) {
+		return space1.getStaticElement().canBeTraveled() && space2.getStaticElement().canBeTraveled();
 	}
-	
+
 	public Map(String file) {
 		structure = new ArrayList<ArrayList<MapSpace>>();
 		taxiStops = new ArrayList<TaxiStopElement>();
-		
+
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			String sCurrentLine;
-			
+
 			for (int y = 0; ((sCurrentLine = br.readLine()) != null); ++y) {
 				ArrayList<MapSpace> line = new ArrayList<MapSpace>();
-				
+
 				for (int x = 0; x < sCurrentLine.length(); ++x) {
 					MapSpace newSpace = null;
-					
+
 					switch (sCurrentLine.charAt(x)) {
 					case '0':
 						newSpace = new MapSpace(new BuildingElement(y, x));
@@ -103,10 +110,10 @@ public class Map {
 						newSpace = new MapSpace(new GasStationElement(y, x));
 						break;
 					}
-					
+
 					line.add(newSpace);
 				}
-				
+
 				structure.add(line);
 			}
 
@@ -114,23 +121,23 @@ public class Map {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		structure = transpose(structure);
 	}
-	
+
 	private ArrayList<ArrayList<MapSpace>> transpose(ArrayList<ArrayList<MapSpace>> list) {
 		int r = list.size();
 		int c = list.get(r-1).size();
 		ArrayList<ArrayList<MapSpace>> t = new ArrayList<ArrayList<MapSpace>>();
-		
-		  for(int i = 0; i < r; ++i) {
-			 ArrayList<MapSpace> line = new ArrayList<MapSpace>();
-		     for(int j = 0; j < c; ++j) {
-		    	 line.add(list.get(j).get(i));
-		     }
-		     t.add(line);
-		  }
-		  
+
+		for(int i = 0; i < r; ++i) {
+			ArrayList<MapSpace> line = new ArrayList<MapSpace>();
+			for(int j = 0; j < c; ++j) {
+				line.add(list.get(j).get(i));
+			}
+			t.add(line);
+		}
+
 		return t;
 	}
 }
