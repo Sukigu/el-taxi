@@ -47,6 +47,7 @@ public class PassengerElement extends Element {
 	
 	@Override
 	public void setX(int x) {
+		super.setX(x);
 		agent.setX(x);
 	}
 	
@@ -57,6 +58,7 @@ public class PassengerElement extends Element {
 	
 	@Override
 	public void setY(int y) {
+		super.setY(y);
 		agent.setY(y);
 	}
 	

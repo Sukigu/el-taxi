@@ -46,4 +46,13 @@ public abstract class Agent extends sajas.core.Agent {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	protected void takeDown() {
+		try {
+			DFService.deregister(this);
+		} catch (FIPAException e) {
+			e.printStackTrace();
+		}
+	}
 }

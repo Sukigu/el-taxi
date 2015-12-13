@@ -38,7 +38,7 @@ public class Launcher extends Repast3Launcher {
 		numPassengers = 5;
 		
 		drawList = new ArrayList<Drawable>();
-		elementMap = new Map("res/map.txt");
+		elementMap = new Map("res/map.txt", drawList);
 		space = new Object2DGrid(elementMap.getDimX(), elementMap.getDimY());
 	}
 

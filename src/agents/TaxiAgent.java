@@ -1,38 +1,89 @@
 package agents;
 
-import java.util.ArrayList;
-import java.util.Random;
-
-import elements.Element;
 import elements.Map;
 import elements.MapSpace;
+import jade.lang.acl.ACLMessage;
 import sajas.core.behaviours.CyclicBehaviour;
 
-public class TaxiAgent extends Agent {
-	private class TaxiBehavior extends CyclicBehaviour {
-		public TaxiBehavior(Agent a) {
-			super(a);
+public abstract class TaxiAgent extends Agent {	
+	protected MapSpace goalSpace;
+	protected PassengerAgent carriedPassenger;
+	protected boolean requested;
+
+	private class GoToGoalBehavior extends CyclicBehaviour {
+		public GoToGoalBehavior() {
+			super(TaxiAgent.this);
+		}
+
+		@Override
+		public void action() {
+			if (goalSpace != null) {
+				MapSpace currentSpace = elementMap.getSpaceAt(x, y);
+				MapSpace nextMove = elementMap.getNearestMoveBetween(currentSpace, goalSpace);
+				elementMap.moveElement(currentSpace.searchByAgent(TaxiAgent.this), currentSpace, nextMove);
+				
+				if (nextMove == goalSpace) {
+					goalSpace = null;
+				}
+				
+				if (carriedPassenger != null) {
+					elementMap.moveElement(currentSpace.searchByAgent(carriedPassenger), currentSpace, nextMove);
+				}
+			}
+		}
+	}
+	
+	private class ListenRequestsBehavior extends CyclicBehaviour {
+		public ListenRequestsBehavior() {
+			super(TaxiAgent.this);
 		}
 		
 		@Override
 		public void action() {
-			MapSpace currentSpace = elementMap.getSpaceAt(x, y);
-			ArrayList<MapSpace> possibleNextMoves = elementMap.getPossibleMovesFrom(currentSpace);
-			int selectedMoveIndex = new Random().nextInt(possibleNextMoves.size());
-			MapSpace selectedMove = possibleNextMoves.get(selectedMoveIndex);
-			
-			elementMap.moveElement(currentSpace.searchByAgent(TaxiAgent.this), currentSpace, selectedMove);
+			ACLMessage msg = receive();
+            if (msg != null && carriedPassenger == null && !requested) {
+            	if (msg.getContent().equals("Where are you?")) {
+            		ACLMessage reply = msg.createReply();
+                    reply.setPerformative(ACLMessage.INFORM);
+                    reply.setContent("I'm at (" + x + ", " + y + ").");
+                    send(reply);
+            	}
+            	else if (msg.getContent().matches("^Come get me! I'm at \\(\\d+, \\d+\\)\\.$")) {
+            		requested = true;
+            		// TODO set goalSpace
+            	}
+            }
 		}
 	}
-	
-	public TaxiAgent(int x, int y, Map elementMap) {
+
+	protected TaxiAgent(int x, int y, Map elementMap) {
 		super(x, y, elementMap);
+		goalSpace = null;
+		carriedPassenger = null;
+		requested = false;
+	}
+	
+	public PassengerAgent getcarriedPassenger() {
+		return carriedPassenger;
+	}
+	
+	public void setCarriedPassenger(PassengerAgent passenger) {
+		try {
+			if (carriedPassenger != null) throw new Exception();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		goalSpace = carriedPassenger.getDestinationSpace();
+		carriedPassenger = passenger;
+		requested = false;
 	}
 
 	@Override
-	public void setup() {
+	protected void setup() {
 		super.setup("TaxiAgent");
-
-		addBehaviour(new TaxiBehavior(this));
+		addBehaviour(new GoToGoalBehavior());
+		addBehaviour(new ListenRequestsBehavior());
 	}
 }

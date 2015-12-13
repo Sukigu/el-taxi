@@ -3,11 +3,16 @@ package elements;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.imageio.ImageIO;
 
+import agents.TaxiAgent;
+
 public class TaxiStopElement extends Element {
 	private static Image img;
+	private Queue<TaxiAgent> taxiQueue;
 	
 	static {
 		try {
@@ -19,11 +24,16 @@ public class TaxiStopElement extends Element {
 	
 	public TaxiStopElement(int x, int y) {
 		super(x, y);
+		taxiQueue = new LinkedList<TaxiAgent>();
 	}
 	
 	@Override
 	protected Image getImg() {
 		return img;
+	}
+	
+	public Queue<TaxiAgent> getTaxiQueue() {
+		return taxiQueue;
 	}
 	
 	@Override

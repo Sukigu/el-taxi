@@ -6,9 +6,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import uchicago.src.sim.gui.Drawable;
+
 public class Map {
+	private ArrayList<Drawable> drawList;
 	private ArrayList<ArrayList<MapSpace>> structure;
 	private ArrayList<TaxiStopElement> taxiStops;
+	
+	public ArrayList<Drawable> getDrawList() {
+		return drawList;
+	}
+	
+	public void createNewPassenger() {
+		// TODO
+	}
 
 	public MapSpace getSpaceAt(int x, int y) {
 		return structure.get(y).get(x);
@@ -81,7 +92,8 @@ public class Map {
 		return space1.getStaticElement().canBeTraveled() && space2.getStaticElement().canBeTraveled();
 	}
 
-	public Map(String file) {
+	public Map(String file, ArrayList<Drawable> drawList) {
+		this.drawList = drawList;
 		structure = new ArrayList<ArrayList<MapSpace>>();
 		taxiStops = new ArrayList<TaxiStopElement>();
 
