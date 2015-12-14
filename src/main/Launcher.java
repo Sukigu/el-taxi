@@ -32,10 +32,10 @@ public class Launcher extends Repast3Launcher {
 	
 	public Launcher() {
 		super();
-		numTaxisBehavior1 = 1;
-		numTaxisBehavior2 = 0;
+		numTaxisBehavior1 = 2;
+		numTaxisBehavior2 = 2;
 		numTaxisBehavior3 = 0;
-		numPassengers = 1;
+		numPassengers = 5;
 		
 		drawList = new ArrayList<Drawable>();
 		elementMap = new Map("res/map.txt", drawList);

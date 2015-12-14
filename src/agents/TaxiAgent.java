@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import elements.Map;
 import elements.MapSpace;
+import elements.PassengerElement;
 import elements.TaxiStopElement;
 import jade.lang.acl.ACLMessage;
 import sajas.core.behaviours.CyclicBehaviour;
@@ -37,7 +38,9 @@ public abstract class TaxiAgent extends Agent {
 				
 				if (carriedPassenger != null) {
 					System.out.println("Taxi " + getLocalName() + " is moving passenger " + carriedPassenger.getLocalName() + " to (" + nextMove.getStaticElement().getX() + ", " + nextMove.getStaticElement().getY() + ").");
-					elementMap.moveElement(currentSpace.searchByAgent(carriedPassenger), currentSpace, nextMove);
+					PassengerElement myPassengerElement = (PassengerElement) currentSpace.searchByAgent(carriedPassenger);
+					if (myPassengerElement == null) carriedPassenger = null;
+					else elementMap.moveElement(currentSpace.searchByAgent(carriedPassenger), currentSpace, nextMove);
 				}
 			}
 		}
