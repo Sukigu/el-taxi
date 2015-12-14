@@ -32,10 +32,10 @@ public class Launcher extends Repast3Launcher {
 	
 	public Launcher() {
 		super();
-		numTaxisBehavior1 = 2;
-		numTaxisBehavior2 = 2;
-		numTaxisBehavior3 = 2;
-		numPassengers = 5;
+		numTaxisBehavior1 = 1;
+		numTaxisBehavior2 = 0;
+		numTaxisBehavior3 = 0;
+		numPassengers = 1;
 		
 		drawList = new ArrayList<Drawable>();
 		elementMap = new Map("res/map.txt", drawList);
@@ -85,6 +85,7 @@ public class Launcher extends Repast3Launcher {
 		Profile p1 = new ProfileImpl();
 		agentContainer = rt.createMainContainer(p1);
 		
+		elementMap.setAgentContainer(agentContainer);
 		placeElements();
 	}
 
@@ -146,7 +147,7 @@ public class Launcher extends Repast3Launcher {
 			drawList.add(newElement);
 			
 			try {
-				agentContainer.acceptNewAgent("passenger" + i, passenger).start();
+				agentContainer.acceptNewAgent("passenger" + PassengerAgent.getLastId(), passenger).start();
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
 			}
@@ -167,7 +168,7 @@ public class Launcher extends Repast3Launcher {
 	}
 
 	public int getNumTaxisBehavior2() {
-		return numTaxisBehavior1;
+		return numTaxisBehavior2;
 	}
 
 	public void setNumTaxisBehavior2(int numTaxisBehavior2) {

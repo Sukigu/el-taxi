@@ -6,9 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import agents.PassengerAgent;
+import jade.wrapper.StaleProxyException;
+import sajas.wrapper.ContainerController;
 import uchicago.src.sim.gui.Drawable;
 
 public class Map {
+	private ContainerController agentContainer;
 	private ArrayList<Drawable> drawList;
 	private ArrayList<ArrayList<MapSpace>> structure;
 	private ArrayList<TaxiStopElement> taxiStops;
@@ -18,7 +22,24 @@ public class Map {
 	}
 	
 	public void createNewPassenger() {
-		// TODO
+		int x, y;
+		
+		do {
+			x = uchicago.src.sim.util.Random.uniform.nextIntFromTo(0, getDimX() - 1);
+			y = uchicago.src.sim.util.Random.uniform.nextIntFromTo(0, getDimY() - 1);
+		} while (!getSpaceAt(x, y).getStaticElement().canHaveElementOnTop());
+		
+		PassengerAgent passenger = new PassengerAgent(x, y, this);
+		
+		PassengerElement newElement = new PassengerElement(passenger);
+		getSpaceAt(x, y).addTopElement(newElement);
+		drawList.add(newElement);
+		
+		try {
+			agentContainer.acceptNewAgent("passenger" + PassengerAgent.getLastId(), passenger).start();
+		} catch (StaleProxyException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public MapSpace getSpaceAt(int x, int y) {
@@ -36,6 +57,10 @@ public class Map {
 	public ArrayList<TaxiStopElement> getTaxiStops() {
 		return taxiStops;
 	}
+	
+	public void setAgentContainer(ContainerController agentContainer) {
+		this.agentContainer = agentContainer;
+	}
 
 	public void moveElement(Element elem, MapSpace spaceOrigin, MapSpace spaceDestination) {
 		spaceOrigin.removeTopElement(elem);
@@ -49,6 +74,7 @@ public class Map {
 
 		int x = space.getStaticElement().getX(), y = space.getStaticElement().getY();
 
+		possibleMoves.add(getSpaceAt(x, y));
 		if (y - 1 >= 0 && canTravelBetween(space, getSpaceAt(x, y - 1))) possibleMoves.add(getSpaceAt(x, y - 1));
 		if (y + 1 < getDimY() && canTravelBetween(space, getSpaceAt(x, y + 1))) possibleMoves.add(getSpaceAt(x, y + 1));
 		if (x - 1 >= 0 && canTravelBetween(space, getSpaceAt(x - 1, y))) possibleMoves.add(getSpaceAt(x - 1, y));
@@ -86,6 +112,10 @@ public class Map {
 
 	public int getDistanceBetween(MapSpace spaceOrigin, MapSpace spaceDestination) {
 		return Math.abs(spaceDestination.getStaticElement().getX() - spaceOrigin.getStaticElement().getX()) + Math.abs(spaceDestination.getStaticElement().getY() - spaceOrigin.getStaticElement().getY());
+	}
+	
+	public int getDistanceBetween(int x, int y, MapSpace spaceDestination) {
+		return Math.abs(spaceDestination.getStaticElement().getX() - x) + Math.abs(spaceDestination.getStaticElement().getY() - y);
 	}
 
 	private boolean canTravelBetween(MapSpace space1, MapSpace space2) {

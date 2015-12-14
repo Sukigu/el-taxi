@@ -1,11 +1,15 @@
 package agents;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import elements.Map;
 import elements.MapSpace;
+import elements.TaxiStopElement;
 import jade.lang.acl.ACLMessage;
 import sajas.core.behaviours.CyclicBehaviour;
 
-public abstract class TaxiAgent extends Agent {	
+public abstract class TaxiAgent extends Agent {
 	protected MapSpace goalSpace;
 	protected PassengerAgent carriedPassenger;
 	protected boolean requested;
@@ -23,10 +27,16 @@ public abstract class TaxiAgent extends Agent {
 				elementMap.moveElement(currentSpace.searchByAgent(TaxiAgent.this), currentSpace, nextMove);
 				
 				if (nextMove == goalSpace) {
+					if (goalSpace.getStaticElement() instanceof TaxiStopElement) { // If this taxi is going to a stop, mark it as not requested. It might be going to its passenger or the passenger might not be there anymore
+						requested = false;
+						((TaxiStopElement) goalSpace.getStaticElement()).getTaxiQueue().add(TaxiAgent.this);
+					}
+					
 					goalSpace = null;
 				}
 				
 				if (carriedPassenger != null) {
+					System.out.println("Taxi " + getLocalName() + " is moving passenger " + carriedPassenger.getLocalName() + " to (" + nextMove.getStaticElement().getX() + ", " + nextMove.getStaticElement().getY() + ").");
 					elementMap.moveElement(currentSpace.searchByAgent(carriedPassenger), currentSpace, nextMove);
 				}
 			}
@@ -47,10 +57,17 @@ public abstract class TaxiAgent extends Agent {
                     reply.setPerformative(ACLMessage.INFORM);
                     reply.setContent("I'm at (" + x + ", " + y + ").");
                     send(reply);
+                    System.out.println("[" + getLocalName() + "] Sent \"" + reply.getContent() + "\"");
             	}
             	else if (msg.getContent().matches("^Come get me! I'm at \\(\\d+, \\d+\\)\\.$")) {
             		requested = true;
-            		// TODO set goalSpace
+            		
+            		Pattern p = Pattern.compile("^Come get me! I'm at \\((\\d+), (\\d+)\\)\\.$");
+	            	Matcher m = p.matcher(msg.getContent());
+	            	int requestedX = Integer.parseInt(m.group(1));
+	            	int requestedY = Integer.parseInt(m.group(2));
+	            	
+	            	goalSpace = elementMap.getSpaceAt(requestedX, requestedY);
             	}
             }
 		}
@@ -68,15 +85,8 @@ public abstract class TaxiAgent extends Agent {
 	}
 	
 	public void setCarriedPassenger(PassengerAgent passenger) {
-		try {
-			if (carriedPassenger != null) throw new Exception();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		goalSpace = carriedPassenger.getDestinationSpace();
 		carriedPassenger = passenger;
+		if (passenger != null) goalSpace = carriedPassenger.getDestinationSpace();
 		requested = false;
 	}
 
